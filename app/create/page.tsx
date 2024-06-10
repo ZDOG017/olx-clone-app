@@ -12,6 +12,7 @@ const CreateProduct = () => {
   const [price, setPrice] = useState(0);
   const [category, setCategory] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const mutation = useMutation<Product, Error, Product>({
     mutationFn: createProduct,
@@ -19,6 +20,10 @@ const CreateProduct = () => {
       const savedProducts = JSON.parse(localStorage.getItem('products') || '[]');
       localStorage.setItem('products', JSON.stringify([...savedProducts, newProduct]));
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      setMessage({ type: 'success', text: 'Product created successfully!' });
+    },
+    onError: () => {
+      setMessage({ type: 'error', text: 'Failed to create product. Please try again.' });
     },
   });
 
@@ -31,6 +36,11 @@ const CreateProduct = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold text-center mb-8">Create Product</h1>
+      {message && (
+        <div className={`mb-4 p-4 text-white ${message.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+          {message.text}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="max-w-md mx-auto">
         <div className="mb-4">
           <label className="block text-gray-700">Title</label>
